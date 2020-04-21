@@ -22,7 +22,7 @@ public class RegisterOneAct extends AppCompatActivity {
     Button btn_continue;
     LinearLayout btn_back;
     EditText username, password, email_address;
-    DatabaseReference reference;
+    DatabaseReference reference, reference_username;
 
     String USERNAME_KEY = "usernamekey";
     String username_key = "";
@@ -44,22 +44,47 @@ public class RegisterOneAct extends AppCompatActivity {
                 btn_continue.setEnabled(false);
                 btn_continue.setText("Loading...");
 
-                //Menyimpan data data kepada local storage(handphone)
-                SharedPreferences sharedPreferences = getSharedPreferences(USERNAME_KEY, MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(username_key, username.getText().toString());
-                editor.apply();
-
-                //simpan kepada databse
-                reference   = FirebaseDatabase.getInstance().getReference()
-                        .child("Users").child(username.getText().toString());
-                reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                //mengambil username pada firebase database
+                reference_username = FirebaseDatabase.getInstance().getReference().
+                        child("Users").child(username.getText().toString());
+                reference_username.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        dataSnapshot.getRef().child("username").setValue(username.getText().toString());
-                        dataSnapshot.getRef().child("password").setValue(password.getText().toString());
-                        dataSnapshot.getRef().child("email_address").setValue(email_address.getText().toString());
-                        dataSnapshot.getRef().child("user_balance").setValue(800);
+                        //jika username tersedia
+                        if(dataSnapshot.exists()){
+                            Toast.makeText(getApplicationContext(),"username sudah tersedia ", Toast.LENGTH_SHORT).show();
+                            //ubah state menjadi loading
+                            btn_continue.setEnabled(true);
+                            btn_continue.setText("CONTINUE");
+                        }
+                        else {
+                            //Menyimpan data data kepada local storage(handphone)
+                            SharedPreferences sharedPreferences = getSharedPreferences(USERNAME_KEY, MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString(username_key, username.getText().toString());
+                            editor.apply();
+
+                            //simpan kepada databse
+                            reference   = FirebaseDatabase.getInstance().getReference()
+                                    .child("Users").child(username.getText().toString());
+                            reference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    dataSnapshot.getRef().child("username").setValue(username.getText().toString());
+                                    dataSnapshot.getRef().child("password").setValue(password.getText().toString());
+                                    dataSnapshot.getRef().child("email_address").setValue(email_address.getText().toString());
+                                    dataSnapshot.getRef().child("user_balance").setValue(800);
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                            //Berpindah activity
+                            Intent gotonextregister = new Intent (RegisterOneAct.this,RegisterTwoAct.class);
+                            startActivity(gotonextregister);
+                        }
                     }
 
                     @Override
@@ -68,13 +93,13 @@ public class RegisterOneAct extends AppCompatActivity {
                     }
                 });
 
+
+
                 //Test apakah username sudah masuk
                 //Toast.makeText(getApplicationContext(),"Username " +
                 //        username.getText().toString(), Toast.LENGTH_SHORT).show();
 
-                //Berpindah activity
-                Intent gotonextregister = new Intent (RegisterOneAct.this,RegisterTwoAct.class);
-                startActivity(gotonextregister);
+
             }
         });
         btn_back.setOnClickListener(new View.OnClickListener() {
