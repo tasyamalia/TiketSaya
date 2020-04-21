@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +25,7 @@ import java.util.Random;
 public class TicketCheckoutAct extends AppCompatActivity {
 
     Button btn_pay_ticket, btnMinus, btnPlus;
+    LinearLayout btn_back;
     TextView textJumlahTiket, textTotalHarga, textMyBalance, nama_wisata, lokasi, ketentuan;
     ImageView notice_uang;
     Integer valueJumlahTiket = 1;
@@ -64,6 +66,7 @@ public class TicketCheckoutAct extends AppCompatActivity {
         nama_wisata = findViewById(R.id.nama_wisata);
         lokasi= findViewById(R.id.lokasi);
         ketentuan = findViewById(R.id.ketentuan);
+        btn_back = findViewById(R.id.btn_back);
 
         //Setting value baru untuk beberapa komponen
         textJumlahTiket.setText(valueJumlahTiket.toString());
@@ -196,6 +199,12 @@ public class TicketCheckoutAct extends AppCompatActivity {
                     }
                 });
 
+            }
+        });
+        btn_back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 
